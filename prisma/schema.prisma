@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String  @id @default(uuid()) 
+  nama      String  @db.VarChar(35)
+  email     String  @unique
+  noTelpon  String  @db.VarChar(14)
+  password  String
+  avatar    String?
+  deskripsi String?
+  roles     Roles?  @relation(references: [id], fields: [rolesId])
+  rolesId   Int?
+  Event     Event[]
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  nama      String
+  deskripsi String
+  proposal  String
+  alamat    String
+  createdAt DateTime @default(now())
+  doneAt    DateTime
+  startAt   DateTime
+  finishAt  DateTime
+  isDone    Boolean @default(false)
+  user      User?    @relation(references: [id], fields: [userId])
+  userId    String?
+  categories kategoriEvent[] 
+  eventImages eventImages[]
+  listKeperluan listKeperluan[]
+}
+
+model Roles {
+  id        Int    @id @default(autoincrement())
+  nama      String @db.VarChar(35)
+  deskripsi String
+  User      User[]
+}
+
+model eventImages{
+  id String @id @default(uuid())
+  event Event? @relation(references: [id], fields: [eventId])
+  eventId String?
+  path String
+}
+
+model listKeperluan{
+  id String @id @default(uuid())
+  event Event? @relation(references: [id], fields: [eventId])
+  eventId String?
+  namaKeperluan String @db.VarChar(40)
+  jumlahKeperluan Int
+  UOM String @db.VarChar(15)
+}
+model kategoriEvent {
+  id        Int    @id @default(autoincrement())
+  nama      String @db.VarChar(20)
+  deskripsi String
+  events Event[] 
+}
